@@ -1,0 +1,27 @@
+{
+  "name": "studentmanager_nodejs",
+  "version": "1.0.0",
+  "description": "Use NodeJs create studentManger",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarchRains/studentManager_nodeJs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MarchRains/studentManager_nodeJs/issues"
+  },
+  "homepage": "https://github.com/MarchRains/studentManager_nodeJs#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "express-session": "^1.15.6",
+    "mongodb": "^3.1.1",
+    "svg-captcha": "^1.3.11"
+  },
+  "devDependencies": {}
+}
