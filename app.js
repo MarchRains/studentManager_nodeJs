@@ -8,14 +8,11 @@ let path = require('path');
 let session = require('express-session');
 //倒入body-parser 格式化表单的数据
 let bodyParser = require('body-parser');
-//导入mongoDB
-const MongoClient = require('mongodb').MongoClient;
-//mongoDB需要用到的配置 
-//Connection URL
-const url = 'mongodb://localhost:27017';
+//使用自己抽取的工具函数
+let myT = require(path.join(__dirname,'static/tools/myT'));
+//导入自己的首页路由
+let indexRoute = require(path.join(__dirname,'route/indexRoute'));
 
-//链接集合名为SZHMQD的数据库
-const dbName = 'SZHMQD';
 
 //创建APP
 let app = express();
@@ -62,11 +59,12 @@ app.post('/login',(req,res)=>{
             userName,
             userPass
         }
+        //正确直接跳转进入首页
         res.redirect('/index');
     }else{
-        console.log('验证码错误');
-        res.setHeader('content-type','text/html');
-        res.send('<script>alert("验证码错误");window.location.href="/login"</script>');
+        // 错误弹出验证码错误,并返回登录页
+        // console.log('验证码错误');
+       myT.mess(res, '验证码错误', '/login');
     }
 })
 
@@ -124,39 +122,23 @@ app.post('/register',(req,res)=>{
     let userName = req.body.userName;
     let userPass = req.body.userPass;
     console.log(userName);
-    console.log(userPass);
-
-    MongoClient.connect(url,(err,client)=>{
-        //连上mongodb以后 选择使用的库
-        const db = client.db(dbName);
-        // console.log(err);
-        
-
-        //选择使用的合集
-        let collection = db.collection('userList');
-
-        //查询数据
-        collection.find({
-            userName
-        }).toArray((err,doc)=>{
-            console.log(doc);
-            // 没有长度证明没有人 不是重复的用户名 新增数据
-            if(doc.length==0){
-                collection.insertOne({
-                    userName,
-                    userPass
-                },(err,result)=>{
-                    console.log('注册成功');
-                    // console.log(err);
-                    //注册成功了
-                    res.setHeader('content-type', 'text/html');
-                    res.send("<script>alert('注册成功');window.location='/login'</script>")
-                    client.close(); 
-                })
-
-            }
-            
-        })
+    myT.find('userList',{
+        userName
+    },(err,docs)=>{
+        // 如果查询结果返回的长度等于0,说明用户名没有重复
+        //可以注册
+        if(docs.length==0){
+            myT.insert('userList', {
+                userName,
+                userPass
+            },(err,result)=>{
+                if(!err){
+                    myT.mess(res,'恭喜您注册成功','/login');
+                }
+            })
+        }else{
+            myT.mess(res,'用户名或密码存在,请重新输入','/register');
+        }
     })
 })
 
